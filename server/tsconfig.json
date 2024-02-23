@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "forceConsistentCasingInFileNames": true,
+        "strict": false,
+        "noEmit": true,
+        "emitDecoratorMetadata": true,
+        "allowImportingTsExtensions": true,
+        "experimentalDecorators": true,
+        "baseUrl": "./src",
+        "paths": {
+            "@/*": ["*"]
+        }
+    }
+}
