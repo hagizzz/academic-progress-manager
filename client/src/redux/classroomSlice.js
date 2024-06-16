@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 
+axios.defaults.withCredentials = true
+
 export const fetchClassrooms = createAsyncThunk('classrooms/fetch', async (_, thunkAPI) => {
     const { dispatch } = thunkAPI
     const { set } = classroomSlice.actions

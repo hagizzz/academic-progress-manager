@@ -5,6 +5,8 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import staffSlice from '../redux/staffSlice'
 
+axios.defaults.withCredentials = true
+
 function StaffForm() {
     const dispatch = useDispatch()
     const { add } = staffSlice.actions

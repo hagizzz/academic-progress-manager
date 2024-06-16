@@ -10,24 +10,30 @@ const options = {
         },
     },
 }
+const range = 0.2
 
-const range = 0.5
-
-const labels = Array(11 / range - 1)
+const labels = Array(Math.floor(11 / range) - 2)
     .fill(0)
     .map((each, index) => index * range)
 
-const data = {
-    labels,
-    datasets: [
-        {
-            data: [0, 0, 0, 0, 1, 2, 3, 4, 6, 6, 9, 11, 13, 15, 18, 20, 18, 16, 12, 8, 5],
-            backgroundColor: 'rgba(53, 162, 235, 0.7)',
-        },
-    ],
-}
+function GradeHistChart({ scores }) {
+    const frequences = labels.map((label) => {
+        if (label == 0) {
+            return scores.filter((score) => label <= score && score <= label + 1).length
+        }
+        return scores.filter((score) => label < score && score <= label + 1).length
+    })
 
-function GradeHistChart() {
+    const data = {
+        labels: labels.map((label, index) => Math.floor(label * 100) / 100),
+        datasets: [
+            {
+                data: frequences,
+                backgroundColor: 'rgba(53, 162, 235, 0.7)',
+            },
+        ],
+    }
+
     return (
         <div className="card bg-base-0 shadow-xl">
             <div className="card-body p-6">

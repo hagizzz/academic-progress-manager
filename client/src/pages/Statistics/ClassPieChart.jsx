@@ -11,30 +11,31 @@ const options = {
     },
 }
 
-const data = {
-    labels: ['TTH1', 'TTH2', 'CNTN'],
-    datasets: [
-        {
-            label: '# of Votes',
-            data: [45, 42, 13],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.7)',
-                'rgba(54, 162, 235, 0.7)',
-                'rgba(75, 192, 192, 0.7)',
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(75, 192, 192, 1)',
-            ],
-            borderWidth: 1,
-        },
-    ],
-}
+const colors = [
+    'rgba(255, 99, 132, 1)',
+    'rgba(53, 162, 235, 1)',
+    'rgba(75, 192, 192, 1)',
+    'orange',
+    'purple',
+    'yellow',
+    'gray',
+]
 
-function ClassPieChart() {
+function ClassPieChart({ counts, labels }) {
+    const data = {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Số sinh viên',
+                data: counts,
+                backgroundColor: colors,
+                borderColor: colors,
+                borderWidth: 1,
+            },
+        ],
+    }
     return (
-        <div className="card bg-base-0 shadow-xl">
+        <div className="card bg-base-0 shadow-xl h-full">
             <div className="card-body p-6">
                 <Pie options={options} data={data} />
             </div>

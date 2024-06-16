@@ -4,6 +4,7 @@ import studentSlice from './studentSlice'
 import subjectSlice from './subjectSlice'
 import courseSlice from './courseSlice'
 import classroomSlice from './classroomSlice'
+
 const store = configureStore({
     reducer: {
         staffs: staffSlice.reducer,

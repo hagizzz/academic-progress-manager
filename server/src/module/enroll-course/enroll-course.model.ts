@@ -5,15 +5,26 @@ import { Course } from '../course/course.model'
 
 @Entity()
 export class EnrollCourse extends DefaultModel {
-    @Column('float')
+    @Column('float', { nullable: true })
     score: number
 
-    @Column('varchar')
-    note: string
-
-    @ManyToOne(() => Student)
+    @ManyToOne(() => Student, { eager: true })
     student: Student
 
-    @ManyToOne(() => Course)
+    @ManyToOne(() => Course, { eager: true })
     course: Course
+}
+
+export interface EnrollCourseSheet {
+    nh: string
+    hk: number
+    masv: number
+    ho: string
+    ten: string
+    mamh: string
+    tenmh: string
+    lop: string
+    diemthi: number
+    diem: number
+    sotc: number
 }

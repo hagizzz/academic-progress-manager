@@ -1,7 +1,7 @@
 import { DefaultModel } from '@/common/SQLModel'
 import { Column, Entity, ManyToOne } from 'typeorm'
-import { Role } from '../role/role.model'
 import { Specialization } from '../specialization/specialization.model'
+import { Role, Permission } from '../auth/auth.utils'
 
 @Entity()
 export class Staff extends DefaultModel {
@@ -54,17 +54,16 @@ export class Staff extends DefaultModel {
     specializationId: number
 
     @Column('varchar', { nullable: true })
-    staffType: string
-
-    @Column('varchar', { nullable: true })
     password: string
 
     @Column('boolean', { default: false })
     status: boolean
 
-    @ManyToOne(() => Role)
+    @Column({ type: 'enum', enum: Role, default: Role.User })
     role: Role
 
     @ManyToOne(() => Specialization)
     specialization: Specialization
+
+    permissions?: Permission[]
 }

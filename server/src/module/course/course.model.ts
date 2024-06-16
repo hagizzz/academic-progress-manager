@@ -12,12 +12,20 @@ export class Course extends DefaultModel {
     @Column('int', { nullable: true })
     term: number
 
-    @ManyToOne(() => Subject)
+    @ManyToOne(() => Subject, { eager: true })
     subject: Subject
 
-    @ManyToOne(() => Staff)
+    @ManyToOne(() => Staff, { eager: true })
     lecturer: Staff
 
-    @ManyToOne(() => Classroom)
+    @ManyToOne(() => Classroom, { eager: true })
+    classroom: Classroom
+}
+
+export interface TCourseSheet {
+    Year: number
+    term: number
+    subject: Subject
+    Lecturer: Staff
     classroom: Classroom
 }

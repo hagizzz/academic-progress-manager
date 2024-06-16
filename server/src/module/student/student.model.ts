@@ -1,13 +1,15 @@
 import { DefaultModel } from '@/common/SQLModel'
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
 import { Classroom } from '../class/classroom.model'
+import { EnrollCourse } from '../enroll-course/enroll-course.model'
+import { Major } from '../major/major.model'
 
 @Entity()
 export class Student extends DefaultModel {
     @Column('varchar')
     fullname: string
 
-    @Column('varchar', { nullable: true, unique: true })
+    @Column('varchar', { unique: true })
     code: string
 
     @Column('varchar', { nullable: true })
@@ -16,10 +18,10 @@ export class Student extends DefaultModel {
     @Column('datetime', { nullable: true })
     DOB: Date
 
-    @Column('varchar', { nullable: true, unique: true })
+    @Column('varchar', { nullable: true })
     phoneNumber: string
 
-    @Column('varchar', { unique: true })
+    @Column('varchar', { nullable: true })
     email: string
 
     @Column('varchar', { nullable: true })
@@ -46,6 +48,27 @@ export class Student extends DefaultModel {
     @Column('varchar', { nullable: true })
     admissionType: string
 
-    @ManyToOne(() => Classroom)
-    classroom: Classroom
+    @Column('boolean', { default: true })
+    status: boolean
+
+    @ManyToOne(() => Major)
+    major: Major
+
+    @OneToMany(() => EnrollCourse, (enrollCourse) => enrollCourse.student)
+    enrollCourses: EnrollCourse[]
+}
+
+export interface TStudentSheet {
+    masv: number
+    ho: string
+    ten: string
+    mact: string
+    manganh: string | number
+    tennganh: string
+    nh: string
+    hk: number
+    mask: string
+    dotnam: number
+    dotthang: number
+    ngunghoc: number
 }

@@ -1,22 +1,25 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchStaffs, removeStaff } from '../redux/staffSlice'
 import { faPencil, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import Form from '../components/Form'
 import axios from 'axios'
-import TableList from '../components/TableList'
 import staffSlice from '../redux/staffSlice'
+import TableList from '../components/TableList'
+axios.defaults.withCredentials = true
 
 function Staffs() {
     const theadColumn = ['Tên nhân viên', 'Email', 'Loại nhân viên', 'Trạng thái', 'Thao tác']
     const dispatch = useDispatch()
-    const staffs = useSelector((state) => state.staffs.staffs)
-    const { add } = staffSlice.actions
+    const { add, setPage, setSearch } = staffSlice.actions
+    const { staffs, page, limit, total, search } = useSelector((state) => state.staffs)
+    const isStart = page == 1
+    const isEnd = page * limit >= total
 
     useEffect(() => {
         dispatch(fetchStaffs())
-    }, [])
+    }, [search, page])
 
     async function addNewUserHandler(formInfo) {
         const res = await axios.post('http://localhost:3000/staffs', formInfo)
@@ -27,6 +30,14 @@ function Staffs() {
 
     function handleDelete(staffId) {
         dispatch(removeStaff(staffId))
+    }
+
+    function previousPage() {
+        dispatch(setPage(page - 1))
+    }
+
+    function nextPage() {
+        dispatch(setPage(page + 1))
     }
 
     function ButtonArea() {
@@ -45,12 +56,6 @@ function Staffs() {
                         form_content="Thông tin nhân viên"
                         btnLabel="Gửi"
                         fields={[
-                            {
-                                type: 'text',
-                                name: 'fullname',
-                                label: 'Họ và tên: ',
-                                placeholder: 'Nhập họ và tên...',
-                            },
                             {
                                 type: 'text',
                                 name: 'email',
@@ -84,15 +89,19 @@ function Staffs() {
             <TableList
                 title="Danh sách nhân viên"
                 headers={theadColumn}
+                onSearch={(e) => {
+                    dispatch(setSearch(e.target.value))
+                }}
+                placeholder={'Tìm kiếm nhân viên...'}
                 buttonArea={<ButtonArea />}
             >
                 {staffs.map((staff, index) => {
                     return (
                         <tr key={staff.id}>
-                            <th>{index + 1}</th>
+                            <th>{staff.id}</th>
                             <td>{staff.fullname}</td>
                             <td>{staff.email}</td>
-                            <td>{staff.staffType}</td>
+                            <td>{staff.role}</td>
                             <td>{staff.status ? 'Đã kích hoạt' : 'Chưa kích hoạt'}</td>
                             <td>
                                 <button className="btn btn-sm normal-case font-light ">
@@ -109,6 +118,21 @@ function Staffs() {
                     )
                 })}
             </TableList>
+            <div className="join flex justify-center">
+                <button
+                    className={'join-item btn ' + (isStart ? 'btn-disabled' : '')}
+                    onClick={previousPage}
+                >
+                    «
+                </button>
+                <button className="join-item btn">{page}</button>
+                <button
+                    className={'join-item btn ' + (isEnd ? 'btn-disabled' : '')}
+                    onClick={nextPage}
+                >
+                    »
+                </button>
+            </div>
         </div>
     )
 }

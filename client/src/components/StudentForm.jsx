@@ -5,6 +5,8 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import studentSlice from '../redux/studentSlice'
 
+axios.defaults.withCredentials = true
+
 function StudentForm() {
     const dispatch = useDispatch()
     const { add } = studentSlice.actions
@@ -77,7 +79,7 @@ function StudentForm() {
                                 className="btn btn-primary"
                                 type="submit"
                                 onClick={addNewUserHandler}
-                                placeholder="Thêm"
+                                value="Thêm"
                             />
                         </form>
                     </div>

@@ -10,74 +10,22 @@ import axios from 'axios'
 import OpenCourseForm from '../../components/OpenNewCourse'
 import { useNavigate } from 'react-router-dom'
 
+axios.defaults.withCredentials = true
+
 function Courses() {
     const navigate = useNavigate()
 
-    const theadColumn = ['Mã môn học', 'Tên môn học', 'Tên lớp', 'Khóa', 'Lịch học']
-    // const dispatch = useDispatch()
-    // const courses = useSelector((state) => state.courses.courses)
-    // const { add } = courseSlice.actions
+    const theadColumn = ['Mã môn học', 'Tên môn học', 'Số tín chỉ', 'Khóa', 'Thao tác']
+    const dispatch = useDispatch()
+    //const courses = useSelector((state) => state.courses.courses)
+    const { add, setPage, setSearch } = courseSlice.actions
+    const { courses, page, limit, total, search } = useSelector((state) => state.courses)
+    const isStart = page == 1
+    const isEnd = page * limit >= total
 
-    const courses = [
-        {
-            subjectName: 'Đại số tuyến tính',
-            term: 1,
-            year: 2020,
-            staffName: 'Trần Ngọc Hội',
-            amountStudent: '100/100',
-            credit: 4,
-            finished: true,
-        },
-        {
-            subjectName: 'Mạng máy tính',
-            term: 2,
-            year: 2022,
-            staffName: 'Võ Đức Cẩm Hải',
-            amountStudent: '95/100',
-            credit: 4,
-            finished: false,
-        },
-        {
-            subjectName: 'Cấu trúc dữ liệu và giải thuật',
-            term: 1,
-            year: 2021,
-            staffName: 'Hà Văn Thảo',
-            amountStudent: '150/150',
-            credit: 4,
-            finished: false,
-        },
-        {
-            subjectName: 'Cơ sở dữ liệu',
-            term: 2,
-            year: 2021,
-            staffName: 'Nguyễn Hiền Lương',
-            amountStudent: '115/120',
-            credit: 4,
-            finished: false,
-        },
-        {
-            subjectName: 'Lý thuyết thống kê',
-            term: 2,
-            year: 2021,
-            staffName: 'Nguyễn Văn Thìn',
-            amountStudent: '150/150',
-            credit: 4,
-            finished: true,
-        },
-        {
-            subjectName: 'Đại số tuyến tính',
-            term: 1,
-            year: 2021,
-            staffName: 'Trần Ngọc Hội',
-            amountStudent: '100/100',
-            credit: 4,
-            finished: false,
-        },
-    ]
-
-    // useEffect(() => {
-    //     dispatch(fetchCourses())
-    // }, [])
+    useEffect(() => {
+        dispatch(fetchCourses())
+    }, [search, page])
 
     async function addNewCourseHandler(formInfo) {
         const res = await axios.post('http://localhost:3000/courses', formInfo)
@@ -85,18 +33,47 @@ function Courses() {
         dispatch(add(data))
     }
 
-    function handleDelete(courseId) {
-        dispatch(removeCourse(courseId))
+    // function handleDelete(courseId) {
+    //     dispatch(removeCourse(courseId))
+    // }
+
+    function statsOnclick(courseId) {
+        navigate(`/statistics/${courseId}`)
     }
 
-    function statsOnclick() {
-        navigate('/statistics')
+    function gradesOnclick(courseId) {
+        navigate(`/students/grade/${courseId}`)
+    }
+
+    function previousPage() {
+        dispatch(setPage(page - 1))
+    }
+
+    function nextPage() {
+        dispatch(setPage(page + 1))
     }
 
     function ButtonArea() {
+        async function handleAddFile() {
+            const formData = new FormData()
+            formData.append('Năm học', Year)
+            formData.append('Mã môn học', Code)
+            formData.append('Tên môn học', Name)
+            formData.append('Số tín chỉ', Credit)
+            formData.append('Lý thuyết', TheoryPeriodAmount)
+            formData.append('Thực hành-bt', PracticePeriodAmount)
+
+            try {
+                let res = await axios.post(`http://localhost:3000/courses/file`, formData)
+
+                dispatch(fetchCourses())
+            } catch (err) {
+                errorMsg = err.response.data.message
+            }
+        }
         return (
             <div>
-                <div className="inline mr-1">
+                <div className="inline mr-1 flex-end">
                     <button
                         className="btn btn-primary btn-sm normal-case"
                         onClick={() => document.getElementById('open-new-course').showModal()}
@@ -115,60 +92,61 @@ function Courses() {
 
     return (
         <div>
-            {/* <div
-                tabIndex={0}
-                role="button"
-                className="btn btn-sm normal-case bg-primary text-white hover:bg-primary-focus mr-1 left-10"
+            <TableList
+                title="Danh sách lớp mở"
+                headers={theadColumn}
+                onSearch={(e) => {
+                    dispatch(setSearch(e.target.value))
+                }}
+                placeholder={'Tìm kiếm lớp mở...'}
+                buttonArea={<ButtonArea />}
+                onChange={(e) => {
+                    dispatch(setSearch(e.target.value))
+                }}
             >
-                Lọc <FontAwesomeIcon icon={faFilter} />
-            </div> */}
-            <div className="flex flex-wrap items-center">
                 {courses.map((course, index) => {
                     return (
-                        <div
-                            className="card w-80 bg-base-100 shadow-lg m-10 mr-0 h-[250px] hover:translate-y-[-3px] transition-all duration-300"
-                            key={index}
-                        >
-                            <div className="card-body ">
-                                <h2 className="card-title h-4">
-                                    {course.subjectName +
-                                        ' ' +
-                                        '(' +
-                                        course.year.toString().slice(-2) +
-                                        '-' +
-                                        (course.year + 1).toString().slice(-2) +
-                                        '/' +
-                                        course.term +
-                                        ')'}
-                                </h2>
-                                <div className="divider m-0 h-4"></div>
-                                <div className="text-base">
-                                    <p>GV phụ trách: {course.staffName}</p>
-                                    <p>Số lượng đăng ký: {course.amountStudent}</p>
-                                    <p>Số tín chỉ: {course.credit}</p>
-                                </div>
+                        <tr key={course.id}>
+                            <th>{course.id}</th>
+                            <td>{course.subject.code}</td>
+                            <td>{course.subject.name}</td>
+                            <td>{course.subject.credit}</td>
+                            <td>
+                                {' ' +
+                                    course.year.toString().slice(-2) +
+                                    '-' +
+                                    (course.year + 1).toString().slice(-2) +
+                                    '/' +
+                                    course.term}
+                            </td>
 
-                                <div className="card-actions absolute bottom-4 right-4">
-                                    <button
-                                        className="btn btn-success btn-sm normal-case"
-                                        onClick={statsOnclick}
-                                    >
-                                        Thống kê
-                                    </button>
-
-                                    <button
-                                        className={
-                                            'btn btn-primary btn-sm normal-case ' +
-                                            (course.finished ? '' : 'btn-disabled')
-                                        }
-                                    >
-                                        Xem điểm
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                            <td>
+                                <button className="link" onClick={() => statsOnclick(course.id)}>
+                                    Thống kê
+                                </button>{' '}
+                                <span> / </span>
+                                <button className="link" onClick={() => gradesOnclick(course.id)}>
+                                    Xem điểm
+                                </button>
+                            </td>
+                        </tr>
                     )
                 })}
+            </TableList>
+            <div className="join flex justify-center">
+                <button
+                    className={'join-item btn ' + (isStart ? 'btn-disabled' : '')}
+                    onClick={previousPage}
+                >
+                    «
+                </button>
+                <button className="join-item btn">{page}</button>
+                <button
+                    className={'join-item btn ' + (isEnd ? 'btn-disabled' : '')}
+                    onClick={nextPage}
+                >
+                    »
+                </button>
             </div>
         </div>
     )

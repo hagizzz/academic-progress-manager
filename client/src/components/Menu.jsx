@@ -54,16 +54,11 @@ const navItems = [
             },
         ],
     },
-    {
-        value: 'Thống kê',
-        icon: faChartSimple,
-        link: '/statistics',
-    },
-    {
-        value: 'Tài liệu',
-        icon: faFileLines,
-        link: '/document',
-    },
+    // {
+    //     value: 'Thống kê',
+    //     icon: faChartSimple,
+    //     link: '/statistics',
+    // },
     {
         value: 'Cài đặt',
         icon: faGear,

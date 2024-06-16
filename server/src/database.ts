@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm'
+import bcrypt from 'bcrypt'
+
 import { Staff } from './module/staff/staff.model'
-import { Role } from './module/role/role.model'
 import { Student } from './module/student/student.model'
 import { Subject } from './module/subject/subject.model'
 import { Classroom } from './module/class/classroom.model'
@@ -9,9 +10,8 @@ import { Department } from './module/department/department.model'
 import { EducationType } from './module/educationType/educationType.model'
 import { EnrollCourse } from './module/enroll-course/enroll-course.model'
 import { Major } from './module/major/major.model'
-import { Permission } from './module/permission/permission.model'
-import { RolePermission } from './module/role-permission/role-permission.model'
 import { Specialization } from './module/specialization/specialization.model'
+import { Role } from './module/auth/auth.utils'
 
 export const AppDataSource = new DataSource({
     type: 'mysql',
@@ -26,7 +26,6 @@ export const AppDataSource = new DataSource({
 
     entities: [
         Staff,
-        Role,
         Student,
         Subject,
         Classroom,
@@ -35,28 +34,43 @@ export const AppDataSource = new DataSource({
         EducationType,
         EnrollCourse,
         Major,
-        Permission,
-        RolePermission,
         Specialization,
     ],
 })
 
-AppDataSource.initialize().then(() => {
-    console.log('Database connected')
+async function initData() {
     const staff = new Staff()
     staff.id = 1
-    staff.fullname = 'Võ Đức Cẩm Hải'
-    staff.email = 'vdchai@gmail.com'
-    staff.staffType = 'Phó trưởng khoa'
-    staff.password = ''
+    staff.fullname = process.env.DEFAULT_STAFF_FULLNAME
+    staff.email = process.env.DEFAULT_STAFF_EMAIL
+    staff.role = Role.SuperAdmin
+    staff.password = await bcrypt.hash(process.env.DEFAULT_STAFF_PASSWORD, 12)
     staff.status = true
     staff.save()
 
-    // const subject = new Subject()
-    // subject.id = 1
+    const staff2 = new Staff()
+    staff2.id = 2
+    staff2.fullname = process.env.DEFAULT_STAFF2_FULLNAME
+    staff2.email = process.env.DEFAULT_STAFF2_EMAIL
+    staff2.role = Role.Lecturer
+    staff2.password = await bcrypt.hash(process.env.DEFAULT_STAFF2_PASSWORD, 12)
+    staff2.status = true
+    staff2.save()
+}
 
-    // const subjectOpen = new SubjectOpen()
-    // subjectOpen.year = 2023
-    // subjectOpen.term = 1
-    // subjectOpen.subject = subject
-})
+export function initDB(callback: Function = () => {}) {
+    console.log(process.env.MYSQL_PASSWORD)
+    AppDataSource.initialize().then(async () => {
+        console.log('Database connected')
+        initData()
+
+        // const subject = new Subject()
+        // subject.id = 1
+
+        // const subjectOpen = new SubjectOpen()
+        // subjectOpen.year = 2023
+        // subjectOpen.term = 1
+        // subjectOpen.subject = subject
+        callback()
+    })
+}

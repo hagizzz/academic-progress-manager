@@ -22,7 +22,7 @@ function Dashboard() {
     ]
     return (
         <div>
-            <p className="text-lg uppercase font-bold ml-4 mr-6 mt-6">Trang chủ-Super Admin</p>
+            <p className="text-lg uppercase font-bold ml-4 mt-6">Trang chủ-Super Admin</p>
             <div className="p-8">
                 <div className="grid grid-cols-4 gap-6">
                     {cards.map((card, index) => (

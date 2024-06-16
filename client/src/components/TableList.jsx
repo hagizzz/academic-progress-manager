@@ -1,11 +1,10 @@
-import StaffForm from '../components/StaffForm'
-import { useEffect, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchStaffs, removeStaff } from '../redux/staffSlice'
-import { faPencil, faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import { useDispatch } from 'react-redux'
+import subjectSlice from '../redux/subjectSlice'
 
 function TableList(props) {
+    const dispatch = useDispatch()
+    const { setSearch } = subjectSlice.actions
+
     return (
         <div className="card bg-base-100 shadow-xl mt-10 mx-8 p-6">
             <div className="">
@@ -25,7 +24,19 @@ function TableList(props) {
                         })}
                     </tr>
                 </thead>
-                <tbody>{props.children}</tbody>
+                <tbody>
+                    <tr>
+                        <td colSpan={props.headers.length + 1}>
+                            <input
+                                type="text"
+                                placeholder={props.placeholder}
+                                className="input input-bordered w-full"
+                                onChange={props.onSearch}
+                            />
+                        </td>
+                    </tr>
+                    {props.children}
+                </tbody>
             </table>
         </div>
     )

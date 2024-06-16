@@ -29,3 +29,11 @@ export class Subject extends DefaultModel {
     @ManyToOne(() => Specialization)
     specialization: Specialization
 }
+
+export interface TSubjectSheet {
+    Code: string
+    Name: string
+    Credit: number
+    TheoryPeriodAmount: number
+    PracticePeriodAmount: number
+}

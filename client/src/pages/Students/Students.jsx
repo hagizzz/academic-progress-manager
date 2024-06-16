@@ -13,6 +13,10 @@ import TableList from '../../components/TableList'
 import Form from '../../components/Form'
 import studentSlice from '../../redux/studentSlice'
 import axios from 'axios'
+import RequirePermission from '../../components/RequirePermission'
+import { DeleteStudentPermission } from '../../helpers/permissions'
+
+axios.defaults.withCredentials = true
 
 function Students() {
     const theadColumn = [
@@ -25,12 +29,14 @@ function Students() {
         'Thao tác',
     ]
     const dispatch = useDispatch()
-    const students = useSelector((state) => state.students.students)
-    const { add } = studentSlice.actions
+    const { add, setPage, setSearch } = studentSlice.actions
+    const { students, page, limit, total, search } = useSelector((state) => state.students)
+    const isStart = page == 1
+    const isEnd = page * limit >= total
 
     useEffect(() => {
         dispatch(fetchStudents())
-    }, [])
+    }, [search, page])
 
     async function addNewUserHandler(formInfo) {
         const res = await axios.post('http://localhost:3000/students', formInfo)
@@ -40,9 +46,35 @@ function Students() {
 
     function handleDelete(studentId) {
         dispatch(removeStudent(studentId))
+        dispatch(fetchStudents())
+    }
+
+    function previousPage() {
+        dispatch(setPage(page - 1))
+    }
+
+    function nextPage() {
+        dispatch(setPage(page + 1))
     }
 
     function ButtonArea() {
+        async function handleAddFile() {
+            const formData = new FormData()
+            formData.append('Họ và tên', Name)
+            formData.append('MSSV', Code)
+            formData.append('Email', Email)
+            formData.append('Giới tính', Gender)
+            formData.append('Dân tộc', Ethnicity)
+            formData.append('Quê quán', Address)
+
+            try {
+                let res = await axios.post(`http://localhost:3000/students/file`, formData)
+
+                dispatch(fetchStudents())
+            } catch (err) {
+                errorMsg = err.response.data.message
+            }
+        }
         return (
             <div>
                 <div className="inline mr-1">
@@ -75,24 +107,44 @@ function Students() {
                     />
                 </div>
 
-                <button className="btn btn-sm normal-case bg-green-700 text-white hover:bg-green-800">
+                <label
+                    htmlFor="import-file"
+                    className="btn btn-sm normal-case bg-green-700 text-white hover:bg-green-800"
+                >
                     Nhập từ excel <FontAwesomeIcon icon={faUpload} />
-                </button>
+                </label>
+                <input
+                    id="import-file"
+                    type="file"
+                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                    hidden
+                    onChange={async (e) => {
+                        const file = e.target.files[0]
+                        const formData = new FormData()
+                        formData.append('excel', file)
+                        console.log(formData)
+                        let res = await axios.post('http://localhost:3000/students/file', formData)
+                        dispatch(fetchStudents())
+                    }}
+                />
             </div>
         )
     }
-
     return (
         <div>
             <TableList
                 title="Danh sách sinh viên"
                 headers={theadColumn}
+                onSearch={(e) => {
+                    dispatch(setSearch(e.target.value))
+                }}
+                placeholder={'Tìm kiếm sinh viên...'}
                 buttonArea={<ButtonArea />}
             >
                 {students.map((student, index) => {
                     return (
                         <tr key={student.id}>
-                            <th>{index + 1}</th>
+                            <th>{student.id}</th>
                             <td>{student.fullname}</td>
                             <td>{student.code}</td>
                             <td>{student.email}</td>
@@ -103,17 +155,34 @@ function Students() {
                                 <button className="btn btn-sm normal-case ">
                                     Thống kê <FontAwesomeIcon icon={faChartSimple} />
                                 </button>{' '}
-                                <button
-                                    className="btn btn-sm normal-case font-light bg-red-500 text-white hover:bg-red-600"
-                                    onClick={() => handleDelete(student.id)}
-                                >
-                                    <FontAwesomeIcon icon={faTrashCan} />
-                                </button>
+                                <RequirePermission permission={DeleteStudentPermission}>
+                                    <button
+                                        className="btn btn-sm normal-case font-light bg-red-500 text-white hover:bg-red-600"
+                                        onClick={() => handleDelete(student.id)}
+                                    >
+                                        <FontAwesomeIcon icon={faTrashCan} />
+                                    </button>
+                                </RequirePermission>
                             </td>
                         </tr>
                     )
                 })}
             </TableList>
+            <div className="join flex justify-center">
+                <button
+                    className={'join-item btn ' + (isStart ? 'btn-disabled' : '')}
+                    onClick={previousPage}
+                >
+                    «
+                </button>
+                <button className="join-item btn">{page}</button>
+                <button
+                    className={'join-item btn ' + (isEnd ? 'btn-disabled' : '')}
+                    onClick={nextPage}
+                >
+                    »
+                </button>
+            </div>
         </div>
     )
 }
